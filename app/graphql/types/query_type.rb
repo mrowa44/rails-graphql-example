@@ -10,4 +10,11 @@ Types::QueryType = GraphQL::ObjectType.define do
       "Hello World!"
     }
   end
+
+  field :post do
+    type Types::PostType
+    argument :id, !types.ID
+    description 'Find a Post by ID'
+    resolve ->(_obj, args, _ctx) { Post.find(args['id']) }
+  end
 end
