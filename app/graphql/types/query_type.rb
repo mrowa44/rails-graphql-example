@@ -1,7 +1,5 @@
 Types::QueryType = GraphQL::ObjectType.define do
   name "Query"
-  # Add root-level fields here.
-  # They will be entry points for queries on your schema.
 
   field :post do
     type Types::PostType
@@ -12,8 +10,18 @@ Types::QueryType = GraphQL::ObjectType.define do
 
   field :posts do
     type types[Types::PostType]
-    argument :limit, types.Int
-    description 'List all posts'
-    resolve ->(_obj, args, _ctx) { Post.first(args[:limit] || 100) }
+    description 'Get posts'
+
+    argument :offset, types.Int, default_value: 0
+    argument :count, types.Int, default_value: 5
+    argument :order, types.String, default_value: 'desc'
+    argument :orderBy, types.String, as: :order_by, default_value: 'created_at'
+
+    resolve ->(_obj, args, _ctx) do
+      Post
+        .order(args[:order_by] => args[:order])
+        .offset(args[:offset])
+        .first(args[:count])
+    end
   end
 end
